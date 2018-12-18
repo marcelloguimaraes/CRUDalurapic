@@ -1,36 +1,39 @@
-angular.module('projeto')
-    .controller('FotoController', function($scope, $routeParams, $location, FotoService) {
+angular.module('alurapic')
+.controller('FotoController', function($scope, recursoFoto, $routeParams) {
 
-        $scope.foto = {};
-        $scope.mensagem = '';
-    
-        if($routeParams.fotoId) {
-            FotoService.get({fotoId: $routeParams.fotoId}, function(retorno) {
-                 $scope.foto = retorno;
-            });
-        }
+    $scope.foto = {};
+    $scope.mensagem = '';
 
-        $scope.submeter = function() {
-           if($scope.formulario.$valid) {
-                if(!$routeParams.fotoId) {
-                    
-                    FotoService.save($scope.foto, function(_id) {
-                        $scope.foto = {};
-                        $scope.mensagem = 'Salvo com sucesso';
-                    }, function(status) {
-                        console.log(status);
-                        $scope.mensagem = 'Não foi possível salvar';
-                    });
+    if($routeParams.fotoId) {
+        recursoFoto.get({fotoId: $routeParams.fotoId}, function(foto) {
+            $scope.foto = foto; 
+        }, function(erro) {
+            console.log(erro);
+            $scope.mensagem = 'Não foi possível obter a foto'
+        });
+    }
 
-                } else {
-                    FotoService.update({fotoId : $scope.foto._id}, $scope.foto, function(_id) {
-                        $scope.foto = {};
-                        $scope.mensagem = 'Alterado com sucesso';                        
-                    }, function(status) {
-                        console.log(status);
-                        $scope.mensagem = 'Não foi possível alterar';
-                    });                    
-                }
-           } 
-        };
-    });
+	$scope.salvarFoto = function() {
+
+	    if ($scope.formulario.$valid) {
+	        if($routeParams.fotoId) {
+
+	            recursoFoto.update({fotoId: $scope.foto._id}, $scope.foto, function() {
+					$scope.mensagem = 'Foto ' + $scope.foto.titulo + ' editada com sucesso';
+				}, function(erro) {
+					console.log("Erro ao editar foto: " + erro);
+				});
+
+	        } else {
+
+	            recursoFoto.save($scope.foto, function() {
+	                $scope.foto = {};
+	                $scope.mensagem = 'Foto cadastrada com sucesso';
+	            }, function(erro) {
+	                console.log(erro);
+	                $scope.mensagem = 'Não foi possível cadastrar a foto';
+	            });
+	        }
+	    }
+	};
+});
